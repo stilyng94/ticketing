@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: expiration-worker-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: expiration-worker
+  template:
+    metadata:
+      labels:
+        app: expiration-worker
+    spec:
+      containers:
+        - name: expiration-worker
+          image: escobar0216/ticketing-expiration:latest
+          command: ["yarn", "worker"]
+          resources:
+            limits:
+              cpu: 100m
+              memory: "128Mi"
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: http://nats-streaming-srv:4222
+            - name: NATS_CLUSTER_ID
+              value: ticketing
+            - name: REDIS_HOST
+              value: ticketing-expiration-redis-srv

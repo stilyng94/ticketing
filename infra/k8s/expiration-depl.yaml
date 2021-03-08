@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ticketing-expiration-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ticketing-expiration
+  template:
+    metadata:
+      labels:
+        app: ticketing-expiration
+    spec:
+      containers:
+        - name: ticketing-expiration
+          image: escobar0216/ticketing-expiration:latest
+          resources:
+            requests:
+              memory: "32Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          env:
+            - name: NATS_CLIENT_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: NATS_URL
+              value: http://nats-streaming-srv:4222
+            - name: NATS_CLUSTER_ID
+              value: ticketing
+            - name: REDIS_HOST
+              value: ticketing-expiration-redis-srv
